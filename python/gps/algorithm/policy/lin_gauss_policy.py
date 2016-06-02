@@ -10,7 +10,7 @@ class LinearGaussianPolicy(Policy):
     Time-varying linear Gaussian policy.
     U = K*x + k + noise, where noise ~ N(0, chol_pol_covar)
     """
-    def __init__(self, K, k, pol_covar, chol_pol_covar, inv_pol_covar):
+    def __init__(self, K, k, pol_covar, chol_pol_covar, inv_pol_covar, lb=None, ub=None):
         Policy.__init__(self)
 
         # Assume K has the correct shape, and make sure others match.
@@ -28,6 +28,8 @@ class LinearGaussianPolicy(Policy):
         self.pol_covar = pol_covar
         self.chol_pol_covar = chol_pol_covar
         self.inv_pol_covar = inv_pol_covar
+	self.ub = ub
+	self.lb = lb
 
     def act(self, x, obs, t, noise=None):
         """
@@ -40,6 +42,9 @@ class LinearGaussianPolicy(Policy):
         """
         u = self.K[t].dot(x) + self.k[t]
         u += self.chol_pol_covar[t].T.dot(noise)
+	u = np.minimum(u, self.ub) if self.ub is not None else u
+	u = np.maximum(u, self.lb) if self.lb is not None else u
+	import pdb; pdb.set_trace()
         return u
 
     def fold_k(self, noise):

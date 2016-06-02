@@ -25,7 +25,7 @@ from gps.utility.general_utils import get_ee_points
 from gps.gui.config import generate_experiment_info
 
 
-EE_POINTS = np.array([[0.02, -0.025, 0.05], [0.02, -0.025, 0.05],
+EE_POINTS = np.array([[0.02, -0.025, 0.05], [0.02, -0.025, -0.05],
                       [0.02, 0.05, 0.0]])
 
 SENSOR_DIMS = {
@@ -119,15 +119,17 @@ agent = {
 algorithm = {
     'type': AlgorithmTrajOpt,
     'conditions': common['conditions'],
-    'iterations': 10,
+    'iterations': 15,
 }
 
 algorithm['init_traj_distr'] = {
     'type': init_lqr,
     'init_gains':  1.0 / PR2_GAINS,
+    'lb': -0.0001 / PR2_GAINS,
+    'ub': 0.0001 / PR2_GAINS,
     'init_acc': np.zeros(SENSOR_DIMS[ACTION]),
-    'init_var': 1.0,
-    'stiffness': 0.5,
+    'init_var': 0.4,
+    'stiffness': 0.01, #0.5
     'stiffness_vel': 0.25,
     'final_weight': 50,
     'dt': agent['dt'],
@@ -136,6 +138,7 @@ algorithm['init_traj_distr'] = {
 
 torque_cost = {
     'type': CostAction,
+    ##'wu': 1e-2 / PR2_GAINS,
     'wu': 5e-3 / PR2_GAINS,
 }
 
@@ -148,6 +151,7 @@ fk_cost1 = {
     'l1': 0.1,
     'l2': 0.0001,
     'ramp_option': RAMP_LINEAR,
+    #'ramp_option': RAMP_FINAL_ONLY,
 }
 
 fk_cost2 = {
@@ -155,8 +159,10 @@ fk_cost2 = {
     'target_end_effector': np.zeros(3 * EE_POINTS.shape[0]),
     'wp': np.ones(SENSOR_DIMS[END_EFFECTOR_POINTS]),
     'l1': 1.0,
-    'l2': 0.0,
-    'wp_final_multiplier': 10.0,  # Weight multiplier on final timestep.
+#    'l2': 0.0,
+    'l2': 0.01,
+#    'wp_final_multiplier': 10.0,  # Weight multiplier on final timestep.
+    'wp_final_multiplier': 1000.0,  # Weight multiplier on final timestep.
     'ramp_option': RAMP_FINAL_ONLY,
 }
 
@@ -173,7 +179,8 @@ algorithm['dynamics'] = {
         'type': DynamicsPriorGMM,
         'max_clusters': 20,
         'min_samples_per_cluster': 40,
-        'max_samples': 20,
+        'max_samples': 40,
+        'strength': 5.0,
     },
 }
 

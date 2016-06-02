@@ -40,7 +40,8 @@ try:
         'trial_timeout': 20,  # Give this many seconds for a trial.
         'reset_conditions': [],  # Defines reset modes + positions for
                                  # trial and auxiliary arms.
-        'frequency': 20,
+        #'frequency': 20,
+	'frequency': 20,
         'end_effector_points': np.array([]),
         #TODO: Actually pass in low gains and high gains and use both
         #      for the position controller.
@@ -53,6 +54,15 @@ try:
             300.0, 0.0, 4.0, 2.0,
             300.0, 0.0, 2.0, 2.0
         ]),
+	#'pid_params': np.array([
+        #    0.1*2400.0, 0.0, 0.0*18.0, 4.0,
+        #    0.1*1200.0, 0.0*500.0, 0.00*20.0, 4.0,
+        #    0.05*1000.0, 0.1*300.0, 0.00*6.0, 4.0,
+        #    0.05*700.0, 0.1*200.0, 0.00*4.0, 4.0,
+        #    0.05*300.0, 0.1*100.0, 0.00*6.0, 2.0,
+        #    0.05*300.0, 0.1*100.0, 0.00*4.0, 2.0,
+        #    0.05*300.0, 0.1*100.0, 0.00*2.0, 2.0
+        #]),
     }
 except ImportError as e:
     AGENT_ROS = {}

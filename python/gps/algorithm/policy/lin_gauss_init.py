@@ -18,6 +18,7 @@ def init_lqr(hyperparams):
 
     x0, dX, dU = config['x0'], config['dX'], config['dU']
     dt, T = config['dt'], config['T']
+    lb, ub = config['lb'], config['ub']
 
     #TODO: Use packing instead of assuming which indices are the joint
     #      angles.
@@ -101,7 +102,8 @@ def init_lqr(hyperparams):
         vx_t = qt_t[idx_x] + Qtt_t[idx_x, idx_u].dot(k[t, :])
         Vxx_t = 0.5 * (Vxx_t + Vxx_t.T)
 
-    return LinearGaussianPolicy(K, k, PSig, cholPSig, invPSig)
+
+    return LinearGaussianPolicy(K, k, PSig, cholPSig, invPSig, lb, ub)
 
 
 #TODO: Fix docstring
