@@ -365,19 +365,20 @@ class GPSTrainingGUI(object):
         mu, sigma = algorithm.traj_opt.forward(algorithm.prev[m].traj_distr, algorithm.prev[m].traj_info)
         mu_eept, sigma_eept = mu[:, start:end+1], sigma[:, start:end+1, start:end+1]
 
-        # Linear Gaussian Controller Distributions (Red)
-        for i in range(mu_eept.shape[1]/3):
-            mu, sigma = mu_eept[:, 3*i+0:3*i+3], sigma_eept[:, 3*i+0:3*i+3, 3*i+0:3*i+3]
-            self._traj_visualizer.plot_3d_gaussian(i=m, mu=mu, sigma=sigma,
-                    edges=100, linestyle='-', linewidth=1.0, color='red',
-                    alpha=0.15, label='LG Controller Distributions')
+        if self._hyperparams['plot_controller_dist']:
+            # Linear Gaussian Controller Distributions (Red)
+            for i in range(mu_eept.shape[1]/3):
+                mu, sigma = mu_eept[:, 3*i+0:3*i+3], sigma_eept[:, 3*i+0:3*i+3, 3*i+0:3*i+3]
+                self._traj_visualizer.plot_3d_gaussian(i=m, mu=mu, sigma=sigma,
+                        edges=100, linestyle='-', linewidth=1.0, color='red',
+                        alpha=0.15, label='LG Controller Distributions')
 
-        # Linear Gaussian Controller Means (Dark Red)
-        for i in range(mu_eept.shape[1]/3):
-            mu = mu_eept[:, 3*i+0:3*i+3]
-            self._traj_visualizer.plot_3d_points(i=m, points=mu, linestyle='None',
-                    marker='x', markersize=5.0, markeredgewidth=1.0,
-                    color=(0.5, 0, 0), alpha=1.0, label='LG Controller Means')
+            # Linear Gaussian Controller Means (Dark Red)
+            for i in range(mu_eept.shape[1]/3):
+                mu = mu_eept[:, 3*i+0:3*i+3]
+                self._traj_visualizer.plot_3d_points(i=m, points=mu, linestyle='None',
+                        marker='x', markersize=5.0, markeredgewidth=1.0,
+                        color=(0.5, 0, 0), alpha=1.0, label='LG Controller Means')
 
     def _update_samples_plots(self, sample_lists, m, color, label):
         """

@@ -18,6 +18,8 @@ from gps.algorithm.policy.lin_gauss_init import init_lqr
 from gps.proto.gps_pb2 import JOINT_ANGLES, JOINT_VELOCITIES, \
         END_EFFECTOR_POINTS, END_EFFECTOR_POINT_VELOCITIES, ACTION
 from gps.gui.config import generate_experiment_info
+from gps.utility.general_utils import merge_two_dicts
+
 
 SENSOR_DIMS = {
     JOINT_ANGLES: 7,
@@ -40,7 +42,7 @@ common = {
     'data_files_dir': EXP_DIR + 'data_files/',
     'target_filename': EXP_DIR + 'target.npz',
     'log_filename': EXP_DIR + 'log.txt',
-    'conditions': 4,
+    'conditions': 1,
 }
 
 if not os.path.exists(common['data_files_dir']):
@@ -55,8 +57,9 @@ agent = {
     'substeps': 5,
     'conditions': common['conditions'],
     'pos_body_idx': np.array([1]),
-    'pos_body_offset': [np.array([0, 0.2, 0]), np.array([0, 0.1, 0]),
-                        np.array([0, -0.1, 0]), np.array([0, -0.2, 0])],
+    'pos_body_offset': [np.array([0, 0.2, 0])],
+    #'pos_body_offset': [np.array([0, 0.2, 0]), np.array([0, 0.1, 0]),
+    #                    np.array([0, -0.1, 0]), np.array([0, -0.2, 0])],
     'T': 100,
     'sensor_dims': SENSOR_DIMS,
     'state_include': [JOINT_ANGLES, JOINT_VELOCITIES, END_EFFECTOR_POINTS,
@@ -68,7 +71,7 @@ agent = {
 algorithm = {
     'type': AlgorithmTrajOpt,
     'conditions': common['conditions'],
-    'iterations': 10,
+    'iterations': 15,
 }
 
 algorithm['init_traj_distr'] = {
@@ -129,4 +132,5 @@ config = {
     'algorithm': algorithm,
 }
 
+common['plot_controller_dist'] = True
 common['info'] = generate_experiment_info(config)

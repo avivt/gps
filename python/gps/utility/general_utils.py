@@ -92,3 +92,10 @@ def get_ee_points(offsets, ee_pos, ee_rot):
         3 x N array of end effector points.
     """
     return ee_rot.dot(offsets.T) + ee_pos.T
+
+
+def merge_two_dicts(x, y):
+    """Given two dicts, merge them into a new dict as a shallow copy."""
+    z = x.copy()
+    z.update(y)
+    return z
