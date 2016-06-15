@@ -183,11 +183,9 @@ algorithm['traj_opt'] = {
 
 algorithm['policy_opt'] = {}
 
-gui = {'plot_controller_dist': True}
-
 config = {
     'iterations': algorithm['iterations'],
-    'common': merge_two_dicts(common, gui),
+    'common': common,
     'verbose_trials': 0,
     'agent': agent,
     'gui_on': True,
@@ -195,4 +193,5 @@ config = {
     'num_samples': 5,
 }
 
+common['plot_controller_dist'] = True
 common['info'] = generate_experiment_info(config)

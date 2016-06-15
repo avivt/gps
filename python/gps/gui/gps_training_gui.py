@@ -379,6 +379,15 @@ class GPSTrainingGUI(object):
                 self._traj_visualizer.plot_3d_points(i=m, points=mu, linestyle='None',
                         marker='x', markersize=5.0, markeredgewidth=1.0,
                         color=(0.5, 0, 0), alpha=1.0, label='LG Controller Means')
+        if self._hyperparams['plot_dynamics_prior']:
+            # GMM centers (Blue)
+            gmm_mu =algorithm.get_dynamics_prior_means(m)
+            #import pdb; pdb.set_trace()
+            gmm_mu_eepts = gmm_mu = gmm_mu[:, start:start+3]
+            self._traj_visualizer.plot_3d_points(i=m, points=gmm_mu_eepts, linestyle='None',
+                                                 marker='x', markersize=5.0, markeredgewidth=1.0,
+                                                 color=(0, 0, 0.5), alpha=1.0, label='GMM cluster Means')
+
 
     def _update_samples_plots(self, sample_lists, m, color, label):
         """

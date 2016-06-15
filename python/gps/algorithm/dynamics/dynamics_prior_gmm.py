@@ -117,3 +117,6 @@ class DynamicsPriorGMM(object):
         # Multiply Phi by m (since it was normalized before).
         Phi *= m
         return mu0, Phi, m, n0
+
+    def get_cluster_means(self):
+        return self.gmm.mu

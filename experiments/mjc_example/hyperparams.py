@@ -124,7 +124,7 @@ algorithm['policy_opt'] = {}
 
 config = {
     'iterations': algorithm['iterations'],
-    'num_samples': 5,
+    'num_samples': 2,
     'verbose_trials': 1,
     'common': common,
     'agent': agent,
@@ -132,5 +132,6 @@ config = {
     'algorithm': algorithm,
 }
 
-common['plot_controller_dist'] = True
+common['plot_controller_dist'] = False
+common['plot_dynamics_prior'] = True
 common['info'] = generate_experiment_info(config)

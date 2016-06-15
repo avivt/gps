@@ -101,6 +101,13 @@ class Algorithm(object):
                         Phi + (N*priorm) / (N+priorm) * \
                         np.outer(x0mu-mu0, x0mu-mu0) / (N+n0)
 
+    def get_dynamics_prior_means(self, cond):
+        """
+            Return cluster means in dynamics prior.
+        """
+        prior = self.cur[cond].traj_info.dynamics.get_prior()
+        return prior.get_cluster_means()
+
     def _update_trajectories(self):
         """
         Compute new linear Gaussian controllers.
