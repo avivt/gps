@@ -118,5 +118,5 @@ class DynamicsPriorGMM(object):
         Phi *= m
         return mu0, Phi, m, n0
 
-    def get_cluster_means(self):
-        return self.gmm.mu
+    def get_cluster_dist(self):
+        return self.gmm.mu, self.gmm.sigma

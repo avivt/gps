@@ -271,9 +271,8 @@ class GPSTrainingGUI(object):
         costs = [np.mean(np.sum(algorithm.prev[m].cs, axis=1)) for m in range(algorithm.M)]
         self._update_iteration_data(itr, algorithm, costs)
         self._cost_plotter.update(costs, t=itr)
-        if END_EFFECTOR_POINTS in agent.x_data_types:
-            self._update_trajectory_visualizations(algorithm, agent,
-                    traj_sample_lists, pol_sample_lists)
+        self._update_trajectory_visualizations(algorithm, agent,
+                                               traj_sample_lists, pol_sample_lists)
 
         self._fig.canvas.draw()
         self._fig.canvas.flush_events() # Fixes bug in Qt4Agg backend
@@ -322,14 +321,18 @@ class GPSTrainingGUI(object):
         Update 3D trajectory visualizations information: the trajectory samples,
         policy samples, and linear Gaussian controller means and covariances.
         """
-        xlim, ylim, zlim = self._calculate_3d_axis_limits(traj_sample_lists, pol_sample_lists)
-        for m in range(algorithm.M):
-            self._traj_visualizer.clear(m)
-            self._traj_visualizer.set_lim(i=m, xlim=xlim, ylim=ylim, zlim=zlim)
-            self._update_linear_gaussian_controller_plots(algorithm, agent, m)
-            self._update_samples_plots(traj_sample_lists, m, 'green', 'Trajectory Samples')
-            if pol_sample_lists:
-                self._update_samples_plots(pol_sample_lists,  m, 'blue',  'Policy Samples')
+        if END_EFFECTOR_POINTS in agent.x_data_types:
+            xlim, ylim, zlim = self._calculate_3d_axis_limits(traj_sample_lists, pol_sample_lists)
+            for m in range(algorithm.M):
+                self._traj_visualizer.clear(m)
+                self._traj_visualizer.set_lim(i=m, xlim=xlim, ylim=ylim, zlim=zlim)
+                #self._update_linear_gaussian_controller_plots(algorithm, agent, m)
+                self._update_samples_plots(traj_sample_lists, m, 'green', 'Trajectory Samples')
+                if pol_sample_lists:
+                    self._update_samples_plots(pol_sample_lists,  m, 'blue',  'Policy Samples')
+        if self._hyperparams['plot_controller_dist'] or self._hyperparams['plot_dynamics_prior']:
+            for m in range(algorithm.M):
+                self._update_linear_gaussian_controller_plots(algorithm, agent, m)
         self._traj_visualizer.draw()    # this must be called explicitly
 
     def _calculate_3d_axis_limits(self, traj_sample_lists, pol_sample_lists):
@@ -349,6 +352,8 @@ class GPSTrainingGUI(object):
                     all_eept = np.r_[all_eept, ee_pt_i]
         min_xyz = np.amin(all_eept, axis=0)
         max_xyz = np.amax(all_eept, axis=0)
+        min_xyz = [-1.0, -1.0, -1.0]
+        max_xyz = [1.0, 1.0, 1.0]
         xlim = buffered_axis_limits(min_xyz[0], max_xyz[0], buffer_factor=1.25)
         ylim = buffered_axis_limits(min_xyz[1], max_xyz[1], buffer_factor=1.25)
         zlim = buffered_axis_limits(min_xyz[2], max_xyz[2], buffer_factor=1.25)
@@ -359,13 +364,12 @@ class GPSTrainingGUI(object):
         Update the linear Guassian controller plots with iteration data,
         for the mean and covariances of the end effector points.
         """
-        # Calculate mean and covariance for end effector points
-        eept_idx = agent.get_idx_x(END_EFFECTOR_POINTS)
-        start, end = eept_idx[0], eept_idx[-1]
-        mu, sigma = algorithm.traj_opt.forward(algorithm.prev[m].traj_distr, algorithm.prev[m].traj_info)
-        mu_eept, sigma_eept = mu[:, start:end+1], sigma[:, start:end+1, start:end+1]
-
         if self._hyperparams['plot_controller_dist']:
+            # Calculate mean and covariance for end effector points
+            eept_idx = agent.get_idx_x(END_EFFECTOR_POINTS)
+            start, end = eept_idx[0], eept_idx[-1]
+            mu, sigma = algorithm.traj_opt.forward(algorithm.prev[m].traj_distr, algorithm.prev[m].traj_info)
+            mu_eept, sigma_eept = mu[:, start:end+1], sigma[:, start:end+1, start:end+1]
             # Linear Gaussian Controller Distributions (Red)
             for i in range(mu_eept.shape[1]/3):
                 mu, sigma = mu_eept[:, 3*i+0:3*i+3], sigma_eept[:, 3*i+0:3*i+3, 3*i+0:3*i+3]
@@ -379,14 +383,19 @@ class GPSTrainingGUI(object):
                 self._traj_visualizer.plot_3d_points(i=m, points=mu, linestyle='None',
                         marker='x', markersize=5.0, markeredgewidth=1.0,
                         color=(0.5, 0, 0), alpha=1.0, label='LG Controller Means')
+
         if self._hyperparams['plot_dynamics_prior']:
             # GMM centers (Blue)
-            gmm_mu =algorithm.get_dynamics_prior_means(m)
-            #import pdb; pdb.set_trace()
-            gmm_mu_eepts = gmm_mu = gmm_mu[:, start:start+3]
-            self._traj_visualizer.plot_3d_points(i=m, points=gmm_mu_eepts, linestyle='None',
+            gmm_idx = agent.get_idx_x(END_EFFECTOR_POINTS)
+            start, end = gmm_idx[0], gmm_idx[-1]
+            gmm_mu, gmm_sig = algorithm.get_dynamics_prior_dist(m)
+            gmm_mu_pts, gmm_sig_pts = gmm_mu[:, start:end+1], gmm_sig[:, start:end+1, start:end+1]
+            self._traj_visualizer.plot_3d_points(i=m, points=gmm_mu_pts, linestyle='None',
                                                  marker='x', markersize=5.0, markeredgewidth=1.0,
                                                  color=(0, 0, 0.5), alpha=1.0, label='GMM cluster Means')
+            self._traj_visualizer.plot_3d_gaussian(i=m, mu=gmm_mu_pts, sigma=gmm_sig_pts,
+                                                   edges=100, linestyle='-', linewidth=1.0, color='blue',
+                                                   alpha=0.15, label='GMM cluster Covariance')
 
 
     def _update_samples_plots(self, sample_lists, m, color, label):
@@ -395,7 +404,7 @@ class GPSTrainingGUI(object):
         and the policy samples.
         """
         samples = sample_lists[m].get_samples()
-        for sample in samples:
+        for sample in samples[0:1]:
             ee_pt = sample.get(END_EFFECTOR_POINTS)
             for i in range(ee_pt.shape[1]/3):
                 ee_pt_i = ee_pt[:, 3*i+0:3*i+3]

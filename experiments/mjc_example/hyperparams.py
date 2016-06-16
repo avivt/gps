@@ -18,7 +18,6 @@ from gps.algorithm.policy.lin_gauss_init import init_lqr
 from gps.proto.gps_pb2 import JOINT_ANGLES, JOINT_VELOCITIES, \
         END_EFFECTOR_POINTS, END_EFFECTOR_POINT_VELOCITIES, ACTION
 from gps.gui.config import generate_experiment_info
-from gps.utility.general_utils import merge_two_dicts
 
 
 SENSOR_DIMS = {

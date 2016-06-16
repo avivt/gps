@@ -37,6 +37,7 @@ class Plotter3D:
         for ax in self._axarr:
             ax.tick_params(pad=0)
             ax.locator_params(nbins=5)
+            ax.view_init(elev=90., azim=90.)
             for item in (ax.get_xticklabels() + ax.get_yticklabels() + ax.get_zticklabels()):
                 item.set_fontsize(10)
 
@@ -66,6 +67,8 @@ class Plotter3D:
                 linewidth=linewidth, marker=marker, markersize=markersize,
                 markeredgewidth=markeredgewidth, color=color, alpha=alpha,
                 label=label)[0]
+        self._axarr[i].set_xlim(xlim)
+        self._axarr[i].set_ylim(ylim)
         self._plots[i].append(plot)
 
     def plot_3d_points(self, i, points, linestyle='-', linewidth=1.0,
