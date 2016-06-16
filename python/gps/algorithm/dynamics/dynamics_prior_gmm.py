@@ -35,8 +35,8 @@ class DynamicsPriorGMM(object):
         self.U = None
         self.gmm = GMM()
         self._min_samp = self._hyperparams['min_samples_per_cluster']
-        self._max_samples = self._hyperparams['max_clusters']
-        self._max_clusters = self._hyperparams['max_samples']
+        self._max_samples = self._hyperparams['max_samples']
+        self._max_clusters = self._hyperparams['max_clusters']
         self._strength = self._hyperparams['strength']
 
     def initial_state(self):
@@ -119,4 +119,4 @@ class DynamicsPriorGMM(object):
         return mu0, Phi, m, n0
 
     def get_cluster_dist(self):
-        return self.gmm.mu, self.gmm.sigma
+        return self.gmm.mu.copy(), self.gmm.sigma.copy()
