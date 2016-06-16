@@ -404,7 +404,7 @@ class GPSTrainingGUI(object):
         and the policy samples.
         """
         samples = sample_lists[m].get_samples()
-        for sample in samples[0:1]:
+        for sample in samples:
             ee_pt = sample.get(END_EFFECTOR_POINTS)
             for i in range(ee_pt.shape[1]/3):
                 ee_pt_i = ee_pt[:, 3*i+0:3*i+3]
