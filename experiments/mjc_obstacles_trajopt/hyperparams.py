@@ -46,7 +46,7 @@ common = {
     # convention : first indices are training, last are testing
     'train_conditions': [i for i in range(CONDITIONS)],
     'test_conditions': [],
-    'iterations': 30,
+    'iterations': 50,
 }
 
 if not os.path.exists(common['data_files_dir']):
@@ -107,6 +107,7 @@ algorithm['dynamics'] = {
         'max_clusters': 5,
         'min_samples_per_cluster': 40,
         'max_samples': 40,
+        'strength': 1,
     },
 }
 
@@ -119,7 +120,7 @@ algorithm['policy_opt'] = {}
 
 config = {
     'iterations': algorithm['iterations'],
-    'num_samples': 8,
+    'num_samples': 5,
     'verbose_trials': 1,
     'verbose_policy_trials': 0,
     'common': common,
