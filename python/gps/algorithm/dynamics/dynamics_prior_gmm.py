@@ -120,3 +120,15 @@ class DynamicsPriorGMM(object):
 
     def get_cluster_dist(self):
         return self.gmm.mu.copy(), self.gmm.sigma.copy()
+
+    def eval_clusters(self, Dx, Du, pts):
+        """
+        Evaluate clusters assignment.
+        Args:
+            pts: A N x Dx+Du+Dx matrix.
+        """
+        # Construct query data point by rearranging entries and adding
+        # in reference.
+        assert pts.shape[1] == Dx + Du + Dx
+        wts = self.gmm.infer_cluster(pts)
+        return wts

@@ -44,6 +44,19 @@ class GMM(object):
         n0 = float(n0) / self.N
         return mu0, Phi, m, n0
 
+    def infer_cluster(self, pts):
+        """
+        Evaluate cluster assignment.
+        Args:
+            pts: A N x D array of points.
+        """
+        # Compute posterior cluster weights.
+        logobs = self.estep(pts)
+
+        # Renormalize to get cluster weights.
+        logwts = logobs - logsum(logobs, axis=1)
+        return np.exp(logwts)
+
     def estep(self, data):
         """
         Compute log observation probabilities under GMM.

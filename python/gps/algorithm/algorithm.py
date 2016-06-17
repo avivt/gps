@@ -108,6 +108,12 @@ class Algorithm(object):
         prior = self.cur[cond].traj_info.dynamics.get_prior()
         return prior.get_cluster_dist()
 
+    def get_dynamics_prior(self, cond):
+        """
+            Return cluster means in dynamics prior.
+        """
+        return self.cur[cond].traj_info.dynamics.get_prior()
+
     def _update_trajectories(self):
         """
         Compute new linear Gaussian controllers.
