@@ -131,5 +131,6 @@ config = {
 
 common['plot_controller_dist'] = False
 common['plot_dynamics_prior'] = True
+common['plot_clusters'] = True
 common['info'] = generate_experiment_info(config)
 

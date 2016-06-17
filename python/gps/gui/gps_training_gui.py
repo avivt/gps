@@ -326,8 +326,10 @@ class GPSTrainingGUI(object):
             for m in range(algorithm.M):
                 self._traj_visualizer.clear(m)
                 self._traj_visualizer.set_lim(i=m, xlim=xlim, ylim=ylim, zlim=zlim)
-                #self._update_linear_gaussian_controller_plots(algorithm, agent, m)
-                self._update_samples_plots(traj_sample_lists, m, 'green', 'Trajectory Samples')
+                if self._hyperparams['plot_clusters']:
+                    self._update_cluster_plots(traj_sample_lists, m, algorithm, agent)
+                else:
+                    self._update_samples_plots(traj_sample_lists, m, 'green', 'Trajectory Samples')
                 if pol_sample_lists:
                     self._update_samples_plots(pol_sample_lists,  m, 'blue',  'Policy Samples')
         if self._hyperparams['plot_controller_dist'] or self._hyperparams['plot_dynamics_prior']:
@@ -352,8 +354,8 @@ class GPSTrainingGUI(object):
                     all_eept = np.r_[all_eept, ee_pt_i]
         min_xyz = np.amin(all_eept, axis=0)
         max_xyz = np.amax(all_eept, axis=0)
-        min_xyz = [-1.0, -1.0, -1.0]
-        max_xyz = [1.0, 1.0, 1.0]
+        min_xyz = [-0.75, -0.75, -0.75]
+        max_xyz = [0.75, 0.75, 0.75]
         xlim = buffered_axis_limits(min_xyz[0], max_xyz[0], buffer_factor=1.25)
         ylim = buffered_axis_limits(min_xyz[1], max_xyz[1], buffer_factor=1.25)
         zlim = buffered_axis_limits(min_xyz[2], max_xyz[2], buffer_factor=1.25)
@@ -409,6 +411,23 @@ class GPSTrainingGUI(object):
             for i in range(ee_pt.shape[1]/3):
                 ee_pt_i = ee_pt[:, 3*i+0:3*i+3]
                 self._traj_visualizer.plot_3d_points(m, ee_pt_i, color=color, label=label)
+
+    def _update_cluster_plots(self, sample_lists, m, algorithm, agent):
+        # calculate clusters
+        X = sample_lists[m].get_X()
+        U = sample_lists[m].get_U()
+        N, T, dX = X.shape
+        dU = U.shape[2]
+        C = np.zeros((N, T-1))
+        for t in range(T - 1):
+            xux = np.c_[X[:, t, :], U[:, t, :], X[:, t+1, :]]
+            wts = algorithm.get_dynamics_prior(m).eval_clusters(dX, dU, xux)
+            C[:, t] = np.argmax(wts, 1)
+        samples = sample_lists[m].get_samples()
+        max_sample_plot = 1
+        for i in range(min(len(samples), max_sample_plot)):
+            ee_pt = samples[i].get(END_EFFECTOR_POINTS)
+            self._traj_visualizer.plot_multicolor_line(m, ee_pt[:T-1, 0], ee_pt[:T-1, 1], ee_pt[:T-1, 2], C[i, :].astype(int))
 
     def save_figure(self, filename):
         self._fig.savefig(filename)

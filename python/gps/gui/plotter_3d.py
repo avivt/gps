@@ -9,6 +9,7 @@ policy samples, and the linear Gaussian controllers.
 """
 import numpy as np
 import matplotlib.pylab as plt
+from matplotlib.collections import LineCollection
 import matplotlib.gridspec as gridspec
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -78,6 +79,12 @@ class Plotter3D:
                 linestyle=linestyle, linewidth=linewidth, marker=marker,
                 markersize=markersize, markeredgewidth=markeredgewidth,
                 color=color, alpha=alpha, label=label)
+
+    def plot_multicolor_line(self, i, x, y, z, c):
+        colors = 'brcgmyk'
+        for t in range(1, x.shape[0]):
+            plot = self._axarr[i].plot(x[t-1:t+1], y[t-1:t+1], z[t-1:t+1], c=colors[c[t-1] % len(colors)])[0]
+            self._plots[i].append(plot)
 
     def plot_3d_gaussian(self, i, mu, sigma, edges=100, linestyle='-.',
             linewidth=1.0, color='black', alpha=0.1, label=''):
